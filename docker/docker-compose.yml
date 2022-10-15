@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  benchmark-auth-server:
+    container_name: benchmark-auth-server
+    command: [ 'start-dev' ]
+    build:
+      context: kc
+      dockerfile: Dockerfile
+      args:
+        KEY_CLOAK: $KEY_CLOAK
+    depends_on:
+      - benchmark-auth-db
+    environment:
+      KC_HTTP_PORT: 9080
+      KC_HTTPS_PORT: 9443
+      KEYCLOAK_ADMIN: 'admin'
+      KEYCLOAK_ADMIN_PASSWORD: 'admin'
+      KC_DB: 'postgres'
+      KC_DB_URL_DATABASE: 'keycloak'
+      KC_DB_URL_HOST: 'benchmark-auth-db'
+      KC_DB_URL_PORT: '5432'
+      KC_DB_USERNAME: 'keycloak'
+      KC_DB_PASSWORD: 'keycloak'
+      KEYCLOAK_LOGLEVEL: 'WARN'
+    ports:
+      - '127.0.0.1:9085:9080'
+    expose:
+      - '9080'
+    networks:
+      - auth-db-network
+  benchmark-auth-db:
+    container_name: benchmark-auth-db
+    build:
+      context: auth-db/
+      dockerfile: Dockerfile
+      args:
+        POSTGRESQL: $POSTGRESQL
+    environment:
+      POSTGRES_DB: 'keycloak'
+      POSTGRES_USER: 'keycloak'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '6666:5432'
+    expose:
+      - '5432'
+    volumes:
+      - /home/ubaid/dev/playground/storage/postgresql/benchmark-auth-db-data/:/var/lib/postgresql/data/
+    networks:
+      - auth-db-network
+  benchmark-db:
+    container_name: benchmark-db
+    build:
+      context: db
+      dockerfile: Dockerfile
+      args:
+        POSTGRESQL: $POSTGRESQL
+    environment:
+      POSTGRES_DB: 'benchmark'
+      POSTGRES_USER: 'benchmark'
+      POSTGRES_PASSWORD: 'benchmark'
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - '6665:5432'
+    expose:
+      - '5432'
+    volumes:
+      - /home/ubaid/dev/playground/storage/postgresql/benchmark-db-data/:/var/lib/postgresql/data/
+networks:
+  auth-db-network:
