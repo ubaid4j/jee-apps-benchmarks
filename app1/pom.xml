@@ -15,7 +15,7 @@
     <name>App1</name>
     <description>App1</description>
     <properties>
-        <java.version>19</java.version>
+        <java.version>11</java.version>
         <repackage.classifier/>
         <spring-native.version>0.12.1</spring-native.version>
     </properties>
